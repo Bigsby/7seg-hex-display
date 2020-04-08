@@ -1,5 +1,7 @@
+from math import pow
 
 digit_segments = bytearray([
+   #D 6543210
    #0babcdefg
     0b1111110, # 0
     0b0110000, # 1
@@ -48,28 +50,48 @@ def displayDigit(digit):
         bit = (digit >> (6 - segment)) & 1
         position = positions[segment]
         if bit:
-            segments[position.x][position.y] = position.charfacefffffffasdf
+            segments[position.x][position.y] = position.char
     printSegments(segments)
     print("-------------")
 
-def main():
-    # show digit display
-    # for digit in digit_segments:
-    #     displayDigit(digit)
-    
-    # show binary result
-    # for digit in range(0,8):
-    #     for index in range(0, len(digit_segments)):
-    #         segments = digit_segments[index]
-    #         print("{0:04x} {0:07b} {1:08b}".format(digit * 0x10 + index, segments))
+def showDigitOutput():
+    for digit in digit_segments:
+        displayDigit(digit)
 
+def showBinaryResult():
+    for digit in range(0,8):
+        for index in range(0, len(digit_segments)):
+            segments = digit_segments[index]
+            print("{0:04x} {0:07b} {1:08b}".format(digit * 0x10 + index, segments))
 
-
+def showOutput():
     for address in range(0x80):
         value = digit_segments[address % 0x10]
         print("{0:04x} {0:07b} {1:08b}".format(address, value))
-    
 
+def createRom():
+    romSize = int(pow(2, 11))
+    digitCount = len(digit_segments)
+    print("Creating ROM for {0} charaters and size {1}".format(digitCount, romSize))
+    rom = bytearray([ 0 ] * romSize)
+    for address in range(digitCount):
+        rom[address] = digit_segments[address % digitCount]
+
+    return rom
+
+def printRom(rom):
+    for address in range(0, len(rom)):
+        print("{0:010b} {0:03x} {1:08b}".format(address, rom[address]))
+
+def createRomFile(rom, fileName):
+    print("Creating ROM file as '{0}'".format(fileName))
+    with open(fileName, "wb") as file:
+        file.write(rom)
+    
+def main():
+    rom = createRom()
+    # printRom(rom)
+    createRomFile(rom, "rom.bin")
 
 
 if __name__ == "__main__":
